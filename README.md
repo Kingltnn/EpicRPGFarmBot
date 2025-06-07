@@ -1,7 +1,7 @@
 dWdnY2Y6Ly9iY3JhLmZjYmd2c2wucGJ6L2dlbnB4LzVwc2tIZ1B4Y3hQVkVlWGxxVVhGb1kgcm90MTM= </br>
 6 28 15 26 15<br> {/\_\_/}</br>( • . •)</br>/ > 🤍
 
-<h1 align="center">EpicRPG Farm Bot V0.0.5.4(BETA)</h1>
+<h1 align="center">EpicRPG Farm Bot V0.0.5.5(BETA)</h1>
 <p align="center">
 
 [![Total Views](https://hits.sh/github.com/Mid0aria/epicrpgfarmbot.svg?view=today-total&label=Repo%20Today/Total%20Views&color=770ca1&labelColor=007ec6)](https://github.com/Mid0aria/epicrpgfarmbot)
@@ -87,9 +87,13 @@ To get auth key, join the Discord server [here](https://discord.gg/WzYXVbXt6C), 
 -   Discord RPC
 -   Auto Phrases Send
 -   Captcha(Ban) Protection v0.0.1 (beta)
+-   Auto Restart:
+    -   Automatically restarts after captcha verification
+    -   Automatically restarts when using command "3"
+    -   Automatically restarts after crashes
 -   Simple Bot Control:
     -   Send "2" to pause bot
-    -   Send "3" to resume bot
+    -   Send "3" to restart bot
 
 ## ⚙・config.json example
 
