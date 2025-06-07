@@ -1,4 +1,4 @@
 @echo off
 :e
-node bot.js
+node start.js
 goto e

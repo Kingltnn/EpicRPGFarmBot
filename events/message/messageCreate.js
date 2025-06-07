@@ -19,6 +19,35 @@ module.exports = async (client, message) => {
     if (message.channel.id !== client.config.channelid) return;
 
     let msgcontent = message.content.toLowerCase();
+
+    // Thêm xử lý cho tin nhắn "2" và "3"
+    if (message.author.id === client.config.userid) {
+        if (msgcontent === "2") {
+            if (!client.global.paused) {
+                client.global.paused = true;
+                client.rpc("update");
+                await message.delete();
+                await message.channel.send({ 
+                    content: "Bot has been paused! Use '3' to restart bot. 🛑" 
+                });
+            } else {
+                await message.delete();
+                await message.channel.send({
+                    content: "Bot is already paused! Use '3' to restart bot.",
+                });
+            }
+            return;
+        }
+        
+        if (msgcontent === "3") {
+            await message.delete();
+            await message.channel.send({ content: "Restarting bot... 🔄" });
+            // Thoát với mã 15 để tự động khởi động lại
+            process.exit(15);
+            return;
+        }
+    }
+
     if (message.author.id === "555955826880413696") {
         // Kiểm tra captcha với hệ thống mới
         if (client.captchaDetector.isCaptchaMessage(msgcontent)) {
@@ -131,7 +160,7 @@ module.exports = async (client, message) => {
             client.captchaDetector.reset();
             client.captchaSolver.clearCache();
             
-            logger.info("Bot", "Captcha", `Captcha solved! Bot resuming automatically...`);
+            logger.info("Bot", "Captcha", `Captcha solved! Restarting bot...`);
 
             // Gửi thông báo qua Discord webhook
             if (client.config.settings.captcha_protection.notification.discord && 
@@ -144,7 +173,7 @@ module.exports = async (client, message) => {
                     await webhook.send({
                         embeds: [{
                             title: '✅ Captcha Solved',
-                            description: 'Bot is resuming automatically.',
+                            description: 'Bot is restarting...',
                             fields: [
                                 {
                                     name: 'Player',
@@ -166,17 +195,18 @@ module.exports = async (client, message) => {
                             timestamp: new Date()
                         }]
                     });
+
+                    // Thoát với mã 15 để tự động khởi động lại
+                    process.exit(15);
+
                 } catch (error) {
                     logger.error("Bot", "Webhook", `Failed to send webhook: ${error.message}`);
+                    // Vẫn thoát với mã 15 ngay cả khi gửi webhook thất bại
+                    process.exit(15);
                 }
-            }
-
-            // Tự động resume bot
-            if (client.config.settings.captcha_protection.auto_resume) {
-                // Đợi 2 giây trước khi resume để đảm bảo an toàn
-                setTimeout(() => {
-                    require("../../utils/farm.js")(client, message);
-                }, 2000);
+            } else {
+                // Nếu không có webhook, vẫn thoát với mã 15
+                process.exit(15);
             }
         }
         //*Training River

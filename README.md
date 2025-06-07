@@ -87,8 +87,9 @@ To get auth key, join the Discord server [here](https://discord.gg/WzYXVbXt6C), 
 -   Discord RPC
 -   Auto Phrases Send
 -   Captcha(Ban) Protection v0.0.1 (beta)
-
--   NEW FEATURES WILL COME WITH UPDATES
+-   Simple Bot Control:
+    -   Send "2" to pause bot
+    -   Send "3" to resume bot
 
 ## ⚙・config.json example
 
@@ -246,61 +247,34 @@ m)
 ### 🖥️・Windows / Linux
 
 ```bash
-# Check Node.js version:
-node -v
+# Install:
+1. Download and install NodeJS
+2. Download the bot files
+3. Configure config.json with your settings
+4. Run start.bat (Windows) or start.sh (Linux)
 
-# Clone the files with git:
-git clone https://github.com/Mid0aria/epicrpgfarmbot
-# Optionally you can also download from github at https://github.com/Mid0aria/epicrpgfarmbot/archive/refs/heads/main.zip
-
-# Enter into the cloned directory:
-cd epicrpgfarmbot
-
-# Configure the bot:
-notepad config.json # On windows
-nano config.json # On linux, can also use any other preferred file writing software
-
-# Run the bot:
-start ./start.bat
-or
-node bot.js
-
-# Start Bot:
-In config.json, type [prefix]start (example: e!start) with the prefix you set in config.json to the channel whose ID you entered in channelid
-
-# Stop Bot:
-In config.json, type [prefix]stop (example: e!stop) with the prefix you set in config.json to the channel whose ID you entered in channelid
-
-# Resume Bot:
-In config.json, type [prefix]resume (example: e!resume) with the prefix you set in config.json to the channel whose ID you entered in channelid
+# Control Bot:
+- Send "2" in the configured channel to pause the bot
+- Send "3" in the configured channel to resume the bot
 ```
 
 ### 📱・Android / iOS (Termux)
 
 ```bash
 # Install:
-
 apt update -y && apt upgrade -y && pkg install wget
 wget https://raw.githubusercontent.com/mid0aria/epicrpgfarmbot/main/termux-setup.sh
 sh termux-setup.sh
 
-# Configure the bot:
-
+# Configure:
 cd epicrpgfarmbot
 nano config.json
 
-# Run the bot:
+# Run:
 sh start.sh
-or
-node bot.js
 
-# Start Bot:
-In config.json, type [prefix]start (example: e!start) with the prefix you set in config.json to the channel whose ID you entered in channelid
-
-# Stop Bot:
-In config.json, type [prefix]stop (example: e!stop) with the prefix you set in config.json to the channel whose ID you entered in channelid
-
-# Resume Bot:
-In config.json, type [prefix]resume (example: e!resume) with the prefix you set in config.json to the channel whose ID you entered in channelid
+# Control Bot:
+- Send "2" in the configured channel to pause the bot
+- Send "3" in the configured channel to resume the bot
 ```
 "# EpicRPG" 

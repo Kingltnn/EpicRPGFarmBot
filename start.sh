@@ -1,7 +1,2 @@
 #!/bin/bash
-
-while :
-do
-    node bot.js
-
-done
+node start.js
