@@ -40,4 +40,17 @@ logger.alert = (type, module, result = "") => {
     );
 };
 
+logger.error = (type, module, result = "") => {
+    console.log(
+        chalk.white(
+            `[${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}]`
+        ),
+        chalk.blue(chalk.bold(type)),
+        chalk.white(`>`),
+        chalk.magenta(module),
+        chalk.white(`>`),
+        chalk.red(result)
+    );
+};
+
 module.exports = { logger };

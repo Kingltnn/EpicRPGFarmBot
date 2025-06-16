@@ -1031,20 +1031,27 @@ async function farm(client, channel, extratime = 0) {
             client.global.training
         )
             return;
+
+        // Kiểm tra và chọn loại seed
         if (client.global.inventory.farm.seed >= 1) {
             farmseedtype = "basic";
         } else if (client.global.inventory.farm.potatoseed >= 1) {
-            farmseedtype = "potato seed";
+            farmseedtype = "potato";
         } else if (client.global.inventory.farm.carrotseed >= 1) {
-            farmseedtype = "carrot seed";
+            farmseedtype = "carrot";
         } else if (client.global.inventory.farm.breadseed >= 1) {
-            farmseedtype = "bread seed";
+            farmseedtype = "bread";
         }
 
-        await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
-            client.global.totalworking++;
-            logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
-        });
+        // Chỉ gửi lệnh farm nếu có seed
+        if (farmseedtype) {
+            await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
+                client.global.totalworking++;
+                logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
+            });
+        } else {
+            logger.warn("Farm", "Progress-Farm", "No seeds available in inventory");
+        }
     }, 1000 + extratime);
 
     setInterval(async () => {
@@ -1057,18 +1064,26 @@ async function farm(client, channel, extratime = 0) {
             client.global.training
         )
             return;
+
+        // Kiểm tra và chọn loại seed
         if (client.global.inventory.farm.seed >= 1) {
             farmseedtype = "basic";
         } else if (client.global.inventory.farm.potatoseed >= 1) {
-            farmseedtype = "potato seed";
+            farmseedtype = "potato";
         } else if (client.global.inventory.farm.carrotseed >= 1) {
-            farmseedtype = "carrot seed";
+            farmseedtype = "carrot";
         } else if (client.global.inventory.farm.breadseed >= 1) {
-            farmseedtype = "bread seed";
+            farmseedtype = "bread";
         }
-        await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
-            logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
-        });
+
+        // Chỉ gửi lệnh farm nếu có seed
+        if (farmseedtype) {
+            await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
+                logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
+            });
+        } else {
+            logger.warn("Farm", "Progress-Farm", "No seeds available in inventory");
+        }
     }, 903500 + extratime);
 }
 
@@ -1157,10 +1172,13 @@ async function vote(client, channel) {
         return;
     } else if (process.platform === "linux") {
         votebrowserexecute = "xdg-open";
-        executeCommand = (command) =>
-            client.childprocess.spawn(command, [
-                "https://top.gg/bot/555955826880413696/vote",
-            ]);
+        executeCommand = (command) => {
+            try {
+                client.childprocess.execSync(`${command} "https://top.gg/bot/555955826880413696/vote"`);
+            } catch (error) {
+                logger.error("Farm", "Vote", `Failed to open browser: ${error.message}`);
+            }
+        };
     } else {
         logger.warn("Farm", "Vote", "Unsupported platform!");
         return;
@@ -1168,9 +1186,7 @@ async function vote(client, channel) {
 
     if (votebrowserexecute) {
         logger.info("Farm", "Vote", "Opening Browser.");
-        executeCommand(
-            `${votebrowserexecute} https://top.gg/bot/555955826880413696/vote`
-        );
+        executeCommand(votebrowserexecute);
     }
 }
 
