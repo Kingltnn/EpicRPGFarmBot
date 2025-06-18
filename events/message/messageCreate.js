@@ -1,15 +1,12 @@
 const { logger } = require("../../utils/logger");
 const CaptchaDetector = require("../../utils/captcha_detection");
-const CaptchaSolver = require("../../utils/captcha_solver");
 const { WebhookClient } = require('discord.js');
+const fs = require('fs');
+const path = require('path');
 
 module.exports = async (client, message) => {
     if (!client.captchaDetector) {
         client.captchaDetector = new CaptchaDetector();
-    }
-
-    if (!client.captchaSolver) {
-        client.captchaSolver = new CaptchaSolver(client);
     }
 
     /**
@@ -104,8 +101,8 @@ module.exports = async (client, message) => {
                         }]
                     });
 
-                    // Thử giải captcha tự động
-                    const solved = await client.captchaSolver.handleCaptcha(message);
+                    // Thử giải captcha tự động - function không tồn tại nên luôn false
+                    const solved = false; // autoSolveCaptcha function không tồn tại
                     if (solved) {
                         // Captcha đã được giải thành công, webhook sẽ được gửi bởi phần xử lý "correct"
                         logger.info("Bot", "Captcha", "Auto-solve successful");
@@ -142,7 +139,7 @@ module.exports = async (client, message) => {
             if (client.config.settings.captcha_protection.notification.desktop) {
                 client.notifier.notify({
                     title: "Captcha Detected!",
-                    message: `Bot stopped. Auto-solve ${client.captchaSolver.lastResult ? 'succeeded' : 'failed'}.\nTotal Captchas: ${client.global.totalcaptcha}`,
+                    message: `Bot stopped. Auto-solve failed.\nTotal Captchas: ${client.global.totalcaptcha}`,
                     icon: "./assets/captcha.png",
                     sound: client.config.settings.captcha_protection.notification.sound,
                     wait: true,
@@ -156,9 +153,8 @@ module.exports = async (client, message) => {
             client.global.captchadetected = false;
             client.global.paused = false;
             
-            // Reset captcha detector và solver
+            // Reset captcha detector
             client.captchaDetector.reset();
-            client.captchaSolver.clearCache();
             
             logger.info("Bot", "Captcha", `Captcha solved! Restarting bot...`);
 
@@ -187,7 +183,7 @@ module.exports = async (client, message) => {
                                 },
                                 {
                                     name: 'Solution Method',
-                                    value: client.captchaSolver.lastResult ? 'Auto-solved' : 'Manual',
+                                    value: 'Manual',
                                     inline: true
                                 }
                             ],
@@ -326,231 +322,6 @@ module.exports = async (client, message) => {
                     `Casino training completed with writing`
                 );
             }
-            client.global.paused = false;
-        }
-        //*Training Forest
-        if (
-            msgcontent.includes("is training in the forest!") &&
-            client.config.commands.experience.training
-        ) {
-            let forestcount;
-            let foresttrainingbutton;
-            const emojiRegex = /how many\s([^ ]+)\sdo you see\?/;
-            const emojiMatch = msgcontent.match(emojiRegex);
-
-            if (emojiMatch) {
-                const emoji = emojiMatch[1].trim();
-
-                const emojiCount = (
-                    msgcontent.match(new RegExp(emoji, "g")) || []
-                ).length;
-
-                forestcount = emojiCount - 1;
-            }
-            foresttrainingbutton = message.components[0].components.find(
-                (button) => button.label.toLowerCase() === `${forestcount}`
-            );
-            try {
-                await message.clickButton(foresttrainingbutton.customId);
-            } catch (error) {
-                foresttrainingbutton = message.components[1].components.find(
-                    (button) => button.label.toLowerCase() === `${forestcount}`
-                );
-                await message.clickButton(foresttrainingbutton.customId);
-            }
-            logger.info(
-                "Farm",
-                "Training",
-                `Clicked ${forestcount} Forest Button`
-            );
-        }
-        //*Training The Field
-        if (
-            msgcontent.includes("is training in the field!") &&
-            client.config.commands.experience.training
-        ) {
-            let fieldanswer;
-            let fieldtrainingbutton;
-            const itemRegex = /what's the \*\*(.+?)\*\* letter of/;
-            const emojiRegex = /<:(\w+):/;
-
-            const itemMatch = msgcontent.match(itemRegex);
-            const emojiMatch = msgcontent.match(emojiRegex);
-
-            if (itemMatch && emojiMatch) {
-                const item = itemMatch[1];
-                let itemint;
-                const emojiName = emojiMatch[1];
-
-                switch (item) {
-                    case "first":
-                        itemint = 1;
-                        break;
-                    case "second":
-                        itemint = 2;
-                        break;
-                    case "third":
-                        itemint = 3;
-                        break;
-                    case "fourth":
-                        itemint = 4;
-                        break;
-                    case "fifth":
-                        itemint = 5;
-                        break;
-                    case "sixth":
-                        itemint = 6;
-                        break;
-                    default:
-                        break;
-                }
-                const letterIndex = parseInt(itemint) - 1;
-                fieldanswer = emojiName[letterIndex];
-            }
-            let newfieldanswer;
-
-            switch (fieldanswer) {
-                case "a":
-                    newfieldanswer = "training_a";
-                    break;
-                case "b":
-                    newfieldanswer = "training_b";
-                    break;
-                case "e":
-                    newfieldanswer = "training_e";
-                    break;
-                case "l":
-                    newfieldanswer = "training_l";
-                    break;
-                case "n":
-                    newfieldanswer = "training_n";
-                    break;
-                case "p":
-                    newfieldanswer = "training_p";
-                    break;
-                default:
-                    break;
-            }
-
-            fieldtrainingbutton = message.components[0].components.find(
-                (button) =>
-                    button.customId.toLowerCase() === `${newfieldanswer}`
-            );
-
-            try {
-                await message.clickButton(fieldtrainingbutton.customId);
-            } catch (error) {
-                fieldtrainingbutton = message.components[1].components.find(
-                    (button) =>
-                        button.customId.toLowerCase() === `${newfieldanswer}`
-                );
-                await message.clickButton(fieldtrainingbutton.customId);
-            }
-            logger.info(
-                "Farm",
-                "Training",
-                `Clicked ${fieldanswer} Field Button`
-            );
         }
     }
-
-    if (
-        !message.content &&
-        !message.interaction &&
-        message.embeds &&
-        message.embeds[0].type
-    ) {
-        if (client.config.settings.event.autojoin) {
-            if (message.embeds[0].fields[0].name) {
-                let event = message.embeds[0].fields[0].name;
-                if (
-                    event.toLowerCase().includes("an epic tree has just grown")
-                ) {
-                    await message.clickButton();
-                    client.global.totalevent = client.global.totalevent + 1;
-                    logger.info("Event", "Epic Tree", "Joined");
-                }
-                if (
-                    event
-                        .toLowerCase()
-                        .includes("a megalodon has spawned in the river")
-                ) {
-                    await message.clickButton();
-                    client.global.totalevent = client.global.totalevent + 1;
-                    logger.info("Event", "Megalodon", "Joined");
-                }
-                if (event.toLowerCase().includes("it's raining coins")) {
-                    await message.clickButton();
-                    client.global.totalevent = client.global.totalevent + 1;
-                    logger.info("Event", "Raining Coin", "Joined");
-                }
-                if (event.toLowerCase().includes("god accidentally dropped")) {
-                    await message.clickButton();
-                    client.global.totalevent = client.global.totalevent + 1;
-                    logger.info("Event", "GOD Coin", "Joined");
-                }
-            }
-        }
-        if (client.config.settings.event.autospecialtrade) {
-            if (message.embeds[0].fields[0].name) {
-                let specialtrade = message.embeds[0].fields[0].name;
-                if (
-                    specialtrade
-                        .toLowerCase()
-                        .includes("i have a special trade today!")
-                ) {
-                    await message.clickButton();
-                    client.global.totalspecialtrade =
-                        client.global.totalspecialtrade + 1;
-                    logger.info("Event", "Special Trade", "Accepted");
-                }
-            }
-        }
-
-        if (client.config.settings.event.autoarena) {
-            if (message.embeds[0].fields[0].name) {
-                let arena = message.embeds[0].fields[0].name;
-                if (arena.toLowerCase().includes("to join the arena!")) {
-                    await message.clickButton();
-                    client.global.totalarena = client.global.totalarena + 1;
-                    logger.info("Event", "Arena", "Accepted");
-                }
-            }
-        }
-    }
-
-    /* if (
-        !message.content &&
-        !message.embeds &&
-        message.interaction &&
-        message.interaction[0].type
-    ) {
-        return;
-    }*/
-
-    /**
-     * CMD
-     */
-    let PREFIX = client.config.prefix;
-
-    const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const prefixRegex = new RegExp(
-        `^(<@!?${client.user.id}>|${escapeRegex(PREFIX)})\\s*`
-    );
-    if (!prefixRegex.test(message.content)) return;
-    const [matchedPrefix] = message.content.match(prefixRegex);
-    const args = message.content
-        .slice(matchedPrefix.length)
-        .trim()
-        .split(/ +/g);
-    const command = args.shift().toLowerCase();
-
-    const cmd =
-        client.commands.get(command) ||
-        client.commands.get(client.aliases.get(command));
-
-    if (cmd) {
-        if (message.author.id !== client.config.userid) return;
-        cmd.run(client, message, args);
-    }
-};
+}

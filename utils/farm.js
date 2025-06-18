@@ -4,6 +4,14 @@ module.exports = async (client, message) => {
     if (client.global.paused || client.global.captchadetected) return;
     logger.info("Farm", "Paused", client.global.paused);
     let channel = client.channels.cache.get(client.config.channelid);
+    
+    // Mua items từ shop trước khi bắt đầu farm
+    if (client.shopManager && client.config.settings.shop.enabled) {
+        logger.info("Farm", "Shop", "Starting shop purchase before farming");
+        await client.shopManager.buyAllEnabledItems();
+        await client.delay(3000); // Delay 3s sau khi mua
+    }
+    
     if (
         client.config.settings.inventory.check &&
         client.config.settings.inventory.lifepotion.autouse
@@ -811,7 +819,7 @@ async function hunt(client, channel, extratime = 0) {
             if (client.config.settings.autophrases) {
                 setTimeout(async () => {
                     await elaina2(client, channel);
-                }, 1000);
+                }, 10000);
             }
 
             await channel.send({ content: "rpg hunt" }).then(async () => {
@@ -837,17 +845,22 @@ async function hunt(client, channel, extratime = 0) {
                 } while (message && message.author.id !== "555955826880413696");
             });
         } else {
-            await channel.send({ content: "rpg hunt" }).then(() => {
+            await channel.send({ content: "rpg hunt" }).then(async () => {
                 client.global.totalhunt++;
                 logger.info(
                     "Farm",
                     "Hunt",
                     `Total Hunt: ${client.global.totalhunt}`
                 );
+                if (client.config.settings.inventory.sell.enable) {
+                    await client.delay(2000);
+                    await inventory(client, channel, "sell");
+                    await client.delay(5000);
+                }
                 if (client.config.settings.autophrases) {
                     setTimeout(async () => {
                         await elaina2(client, channel);
-                    }, 1000);
+                    }, 10000);
                 }
             });
         }
@@ -906,6 +919,11 @@ async function hunt(client, channel, extratime = 0) {
                     await inventory(client, channel, "sell");
                     await client.delay(5000);
                 }
+                if (client.config.settings.autophrases) {
+                    setTimeout(async () => {
+                        await elaina2(client, channel);
+                    }, 10000);
+                }
             });
         } else {
             await channel.send({ content: "rpg hunt" }).then(async () => {
@@ -919,6 +937,11 @@ async function hunt(client, channel, extratime = 0) {
                     await client.delay(2000);
                     await inventory(client, channel, "sell");
                     await client.delay(5000);
+                }
+                if (client.config.settings.autophrases) {
+                    setTimeout(async () => {
+                        await elaina2(client, channel);
+                    }, 10000);
                 }
             });
         }
@@ -1216,9 +1239,6 @@ async function sell(client, channel, item, count = "1", where = "") {
     if (client.global.paused && where !== "inventory") return;
     await channel.send({ content: `rpg sell ${item} ${count}` });
     logger.info("Farm", "Sell", item);
-    // if (where === "inventory") {
-    //     await client.delay(2500);
-    // }
 }
 
 /**
@@ -1231,7 +1251,7 @@ async function elaina2(client, channel) {
     client.fs.readFile("./phrases/phrases.json", "utf8", async (err, data) => {
         if (err) {
             console.error(err);
-            return diagnosticreport(err);
+            return;
         }
 
         const phrasesObject = JSON.parse(data);
@@ -1248,10 +1268,8 @@ async function elaina2(client, channel) {
         let result = Math.floor(Math.random() * phrases.length);
         let ilu = phrases[result];
 
-        // await channel.sendTyping();
-
         await channel.send({ content: ilu });
-        logger.info("Farm", "Phrases", `Successfuly Sended`);
+        logger.info("Farm", "Phrases", `Successfully Sent`);
     });
 }
 
