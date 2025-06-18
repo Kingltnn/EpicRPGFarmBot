@@ -1068,10 +1068,10 @@ async function farm(client, channel, extratime = 0) {
 
         // Chỉ gửi lệnh farm nếu có seed
         if (farmseedtype) {
-            await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
-                client.global.totalworking++;
-                logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
-            });
+        await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
+            client.global.totalworking++;
+            logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
+        });
         } else {
             logger.warn("Farm", "Progress-Farm", "No seeds available in inventory");
         }
@@ -1101,9 +1101,9 @@ async function farm(client, channel, extratime = 0) {
 
         // Chỉ gửi lệnh farm nếu có seed
         if (farmseedtype) {
-            await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
-                logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
-            });
+        await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
+            logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
+        });
         } else {
             logger.warn("Farm", "Progress-Farm", "No seeds available in inventory");
         }
