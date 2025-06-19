@@ -324,4 +324,9 @@ module.exports = async (client, message) => {
             }
         }
     }
+    
+    // Xử lý shop response
+    if (client.shopManager && client.config.settings.shop.enabled) {
+        await client.shopManager.handleShopResponse(message);
+    }
 }

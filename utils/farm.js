@@ -5,13 +5,6 @@ module.exports = async (client, message) => {
     logger.info("Farm", "Paused", client.global.paused);
     let channel = client.channels.cache.get(client.config.channelid);
     
-    // Mua items từ shop trước khi bắt đầu farm
-    if (client.shopManager && client.config.settings.shop.enabled) {
-        logger.info("Farm", "Shop", "Starting shop purchase before farming");
-        await client.shopManager.buyAllEnabledItems();
-        await client.delay(3000); // Delay 3s sau khi mua
-    }
-    
     if (
         client.config.settings.inventory.check &&
         client.config.settings.inventory.lifepotion.autouse
@@ -373,7 +366,8 @@ async function checkcooldowns(client, channel) {
             netcooldown,
             laddercooldown,
             progressworkingdisabled,
-            progressworkingmultivalue;
+            progressworkingmultivalue,
+            lootboxcooldown;
 
         for (const category in client.config.commands) {
             const subCommands = client.config.commands[category];
@@ -635,6 +629,47 @@ async function checkcooldowns(client, channel) {
                             );
                                 }
                             }
+                            // Thêm xử lý lootbox cooldown cho shop
+                            if (item === "lootbox" && 
+                                client.config.settings.shop.enabled &&
+                                client.shopManager) {
+                                if (cooldown && cooldown !== "ready") {
+                                    lootboxcooldown = timetoms(cooldown);
+                                    // Cập nhật cooldown cho tất cả items trong shop
+                                    const shopItems = client.config.settings.shop.items;
+                                    for (const [itemName, config] of Object.entries(shopItems)) {
+                                        if (config.enabled) {
+                                            const nextBuyTime = Date.now() + lootboxcooldown;
+                                            client.shopManager.cooldowns.set(itemName, nextBuyTime);
+                                        }
+                                    }
+                                    logger.info(
+                                        "Farm",
+                                        "Cooldowns",
+                                        `Lootbox Cooldown: ${cooldown} (${lootboxcooldown}ms)`
+                                    );
+                                } else {
+                                    // Reset cooldown nếu lootbox ready
+                                    const shopItems = client.config.settings.shop.items;
+                                    for (const [itemName, config] of Object.entries(shopItems)) {
+                                        if (config.enabled) {
+                                            client.shopManager.cooldowns.delete(itemName);
+                                        }
+                                    }
+                                    logger.info(
+                                        "Farm",
+                                        "Cooldowns",
+                                        "Lootbox is ready!"
+                                    );
+                                    
+                                    // Gọi shop manager để mua items
+                                    setTimeout(async () => {
+                                        if (!client.global.paused && !client.global.captchadetected) {
+                                            await client.shopManager.onLootboxCooldownExpired();
+                                        }
+                                    }, 5000); // Delay 5s để đảm bảo cooldown đã reset
+                                }
+                            }
                         }
                     }
                 });
@@ -790,6 +825,10 @@ async function checkcooldowns(client, channel) {
             } else {
                 working(client, channel, "ladder", 7500);
             }
+        }
+
+        if (client.shopManager && client.config.settings.shop.enabled) {
+            await client.shopManager.checkAndBuyWhenReady();
         }
     });
 }

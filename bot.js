@@ -182,7 +182,6 @@ const notifier = require("node-notifier");
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const DuelManager = require('./utils/duel_manager');
 const InfoChecker = require('./utils/info_checker');
 const ShopManager = require("./utils/shop_manager");
 
@@ -191,11 +190,9 @@ client.on('ready', async () => {
     logger.info("Bot", "Status", "Bot is ready!");
     
     // Initialize managers
-    client.duelManager = new DuelManager(client);
     client.shopManager = new ShopManager(client);
     client.infoChecker = new InfoChecker(client);
     
-    client.duelManager.init();
     client.shopManager.init();
     client.infoChecker.init();
     
@@ -203,24 +200,9 @@ client.on('ready', async () => {
     if (channel) {
         setTimeout(() => {
             require("./utils/farm.js")(client, channel);
-            
-            // Start duel checking loop
-            setInterval(() => {
-                if (!client.global.paused && !client.global.captchadetected) {
-                    client.duelManager.sendDuelRequest(channel);
-                }
-            }, 60000); // Check every minute
         }, 2000);
     } else {
         logger.error("Bot", "Auto-start", "Could not find configured channel!");
-    }
-});
-
-// Add message event handler for duel requests and responses
-client.on('messageCreate', async (message) => {
-    if (!client.global.paused && !client.global.captchadetected) {
-        await client.duelManager.handleDuelRequest(message);
-        await client.duelManager.handleDuelMessages(message);
     }
 });
 
@@ -302,8 +284,8 @@ process.on('SIGINT', () => {
     if (client.shopManager) {
         client.shopManager.cleanup();
     }
-    if (client.duelManager) {
-        client.duelManager.cleanup();
+    if (client.infoChecker) {
+        client.infoChecker.cleanup();
     }
     process.exit(0);
 });
@@ -313,8 +295,8 @@ process.on('SIGTERM', () => {
     if (client.shopManager) {
         client.shopManager.cleanup();
     }
-    if (client.duelManager) {
-        client.duelManager.cleanup();
+    if (client.infoChecker) {
+        client.infoChecker.cleanup();
     }
     process.exit(0);
 });

@@ -3,8 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Import các module
-const Logger = require('./utils/logger');
-const logger = new Logger();
+const { logger } = require('./utils/logger');
 
 // Import các manager
 const HuntManager = require('./utils/hunt_manager');
@@ -12,7 +11,6 @@ const CooldownManager = require('./utils/cooldown_manager');
 const InventoryManager = require('./utils/inventory_manager');
 const EventManager = require('./utils/event_manager');
 const ShopManager = require('./utils/shop_manager');
-const DuelManager = require('./utils/duel_manager');
 const InfoChecker = require('./utils/info_checker');
 
 // Tạo client Discord
@@ -67,7 +65,6 @@ client.cooldownManager = new CooldownManager(client);
 client.inventoryManager = new InventoryManager(client);
 client.eventManager = new EventManager(client);
 client.shopManager = new ShopManager(client);
-client.duelManager = new DuelManager(client);
 client.infoChecker = new InfoChecker(client);
 
 // Event handlers
@@ -80,7 +77,6 @@ client.once('ready', () => {
     client.inventoryManager.init();
     client.eventManager.init();
     client.shopManager.init();
-    client.duelManager.init();
     client.infoChecker.init();
     
     // Bắt đầu farming
@@ -106,12 +102,6 @@ client.on('messageCreate', async (message) => {
         
         // Xử lý event messages
         await client.eventManager.handleEventMessage(message);
-        
-        // Xử lý duel request (người nhận)
-        await client.duelManager.handleDuelRequest(message);
-        
-        // Xử lý tất cả tin nhắn liên quan đến duel
-        await client.duelManager.handleDuelMessages(message);
         
     } catch (error) {
         logger.error('Main', 'Message', `Error handling message: ${error}`);
@@ -155,7 +145,6 @@ async function handleCommands(message) {
             client.inventoryManager.reset();
             client.eventManager.reset();
             client.shopManager.reset();
-            client.duelManager.reset();
             client.infoChecker.reset();
             logger.info('Main', 'Command', 'All systems reset');
             break;
@@ -176,50 +165,8 @@ async function handleCommands(message) {
             }
             break;
             
-        case '!duel':
-            const duelChannel = client.channels.cache.get(client.config.channelid);
-            if (duelChannel) {
-                await client.duelManager.sendDuelRequest(duelChannel);
-                logger.info('Main', 'Command', 'Sent duel request manually');
-            }
-            break;
-            
         default:
             logger.info('Main', 'Command', `Unknown command: ${command}`);
-    }
-}
-
-// Kiểm tra cooldown và gửi duel cùng với daily/weekly
-async function checkCooldownsAndSendDuel() {
-    try {
-        const channel = client.channels.cache.get(client.config.channelid);
-        if (!channel) {
-            logger.warn('Main', 'Cooldown', 'Channel not found');
-            return;
-        }
-
-        // Kiểm tra cooldown daily
-        if (!client.global.dailycd) {
-            logger.info('Main', 'Daily', 'Daily cooldown expired, sending daily command');
-            await channel.send('rpg daily');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-
-        // Kiểm tra cooldown weekly
-        if (!client.global.weeklycd) {
-            logger.info('Main', 'Weekly', 'Weekly cooldown expired, sending weekly command');
-            await channel.send('rpg weekly');
-            await new Promise(resolve => setTimeout(resolve, 3000));
-        }
-
-        // Kiểm tra cooldown duel và gửi duel request
-        if (!client.duelManager.isOnCooldown() && !client.duelManager.isDueling) {
-            logger.info('Main', 'Duel', 'Duel cooldown expired, sending duel request');
-            await client.duelManager.sendDuelRequest(channel);
-        }
-
-    } catch (error) {
-        logger.error('Main', 'Cooldown', `Error checking cooldowns: ${error}`);
     }
 }
 
@@ -237,9 +184,6 @@ async function startFarming() {
     if (client.config.settings.shop.enabled) {
         await client.shopManager.buyItems(channel);
     }
-    
-    // Kiểm tra cooldown daily/weekly/duel khi bắt đầu
-    await checkCooldownsAndSendDuel();
     
     // Bắt đầu hunt
     await client.huntManager.startHunt(channel);
@@ -316,7 +260,6 @@ process.on('SIGINT', async () => {
     client.inventoryManager.cleanup();
     client.eventManager.cleanup();
     client.shopManager.cleanup();
-    client.duelManager.cleanup();
     client.infoChecker.cleanup();
     
     process.exit(0);
