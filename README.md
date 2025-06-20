@@ -1,5 +1,5 @@
 KingLTN</br>
-6 28 15 26 15<br> {/\_\_/}</br>( • . •)</br>/ > 🤍
+<br> {/\_\_/}</br>( • . •)</br>/ > 🤍
 
 <h1 align="center">EpicRPG Farm Bot V0.0.5.5(BETA)</h1>
 <p align="center">
