@@ -1,6 +1,6 @@
 {
-    "prefix": "",
-    "token": "",
+   "prefix": "",
+    "token": "YOUR_TOKEN_HERE",
     "channelid": "",
     "userid": "",
     "commands": {
@@ -46,22 +46,6 @@
             "autojoin": true,
             "autospecialtrade": true,
             "autoarena": true
-        },
-        "shop": {
-            "enabled": true,
-            "items": {
-                "EDGY lootbox": {
-                    "enabled": true
-                },
-                "EPIC lootbox": {
-                    "enabled": false
-                },
-                "rare lootbox": {
-                    "enabled": false
-                }
-            },
-            "check_interval": 300000,
-            "retry_delay": 60000
         },
         "captcha_protection": {
             "enabled": true,

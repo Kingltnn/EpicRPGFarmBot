@@ -104,11 +104,6 @@ module.exports = async (client, message) => {
                                     inline: true
                                 },
                                 {
-                                    name: 'Status',
-                                    value: 'Attempting auto-solve...',
-                                    inline: true
-                                },
-                                {
                                     name: 'Location',
                                     value: `[Click to view captcha](${messageLink})`,
                                     inline: false
@@ -176,52 +171,8 @@ module.exports = async (client, message) => {
             
             logger.info("Bot", "Captcha", `Captcha solved! Restarting bot...`);
 
-            // Gửi thông báo qua Discord webhook
-            if (client.config.settings.captcha_protection.notification.discord && 
-                client.config.settings.captcha_protection.webhook_url) {
-                try {
-                    const webhook = new WebhookClient({ 
-                        url: client.config.settings.captcha_protection.webhook_url 
-                    });
-                    
-                    await webhook.send({
-                        embeds: [{
-                            title: '✅ Captcha Solved',
-                            description: 'Bot is restarting...',
-                            fields: [
-                                {
-                                    name: 'Player',
-                                    value: `${client.user.tag}`,
-                                    inline: true
-                                },
-                                {
-                                    name: 'Total Captchas',
-                                    value: `${client.global.totalcaptcha}`,
-                                    inline: true
-                                },
-                                {
-                                    name: 'Solution Method',
-                                    value: 'Manual',
-                                    inline: true
-                                }
-                            ],
-                            color: 0x00FF00,
-                            timestamp: new Date()
-                        }]
-                    });
-
-                    // Thoát với mã 15 để tự động khởi động lại
-                    process.exit(15);
-
-                } catch (error) {
-                    logger.error("Bot", "Webhook", `Failed to send webhook: ${error.message}`);
-                    // Vẫn thoát với mã 15 ngay cả khi gửi webhook thất bại
-                    process.exit(15);
-                }
-            } else {
-                // Nếu không có webhook, vẫn thoát với mã 15
-                process.exit(15);
-            }
+            // Đã xóa phần gửi webhook thông báo giải captcha thành công
+            process.exit(15);
         }
         //*Training River
         if (
@@ -340,6 +291,7 @@ module.exports = async (client, message) => {
                     `Casino training completed with writing`
                 );
             }
+            client.global.paused = false;
         }
     }
     
