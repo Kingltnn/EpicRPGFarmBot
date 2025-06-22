@@ -46,6 +46,24 @@ module.exports = async (client, message) => {
             process.exit(15);
             return;
         }
+
+        // Handle shop commands
+        if (msgcontent.startsWith("shop") || msgcontent.startsWith("s ")) {
+            const args = msgcontent.split(" ");
+            const command = args[0];
+            
+            // Check if command exists
+            if (client.commands.has(command) || client.aliases.has(command)) {
+                const cmd = client.commands.get(command) || client.commands.get(client.aliases.get(command));
+                try {
+                    await cmd.run(client, message, args.slice(1));
+                } catch (error) {
+                    logger.error("Bot", "Command", `Error executing ${command}: ${error.message}`);
+                    await message.channel.send("❌ An error occurred while executing the command.");
+                }
+            }
+            return;
+        }
     }
 
     if (message.author.id === "555955826880413696") {
@@ -105,33 +123,33 @@ module.exports = async (client, message) => {
                     });
 
                     // Thử giải captcha tự động
-                    const solved = await client.captchaSolver.handleCaptcha(message);
-                    if (solved) {
-                        // Captcha đã được giải thành công, webhook sẽ được gửi bởi phần xử lý "correct"
-                        logger.info("Bot", "Captcha", "Auto-solve successful");
-                    } else {
-                        // Cập nhật webhook nếu không giải được
-                        await webhook.send({
-                            embeds: [{
-                                title: '⚠️ Auto-solve Failed',
-                                description: 'Manual intervention required.',
-                                fields: [
-                                    {
-                                        name: 'Player',
-                                        value: `${client.user.tag}`,
-                                        inline: true
-                                    },
-                                    {
-                                        name: 'Status',
-                                        value: 'Waiting for manual solution',
-                                        inline: true
-                                    }
-                                ],
-                                color: 0xFFA500,
-                                timestamp: new Date()
-                            }]
-                        });
-                    }
+                    // const solved = await client.captchaSolver.handleCaptcha(message);
+                    // if (solved) {
+                    //     // Captcha đã được giải thành công, webhook sẽ được gửi bởi phần xử lý "correct"
+                    //     logger.info("Bot", "Captcha", "Auto-solve successful");
+                    // } else {
+                    //     // Cập nhật webhook nếu không giải được
+                    //     await webhook.send({
+                    //         embeds: [{
+                    //             title: '⚠️ Auto-solve Failed',
+                    //             description: 'Manual intervention required.',
+                    //             fields: [
+                    //                 {
+                    //                     name: 'Player',
+                    //                     value: `${client.user.tag}`,
+                    //                     inline: true
+                    //                 },
+                    //                 {
+                    //                     name: 'Status',
+                    //                     value: 'Waiting for manual solution',
+                    //                     inline: true
+                    //                 }
+                    //             ],
+                    //             color: 0xFFA500,
+                    //             timestamp: new Date()
+                    //         }]
+                    //     });
+                    // }
 
                 } catch (error) {
                     logger.error("Bot", "Webhook", `Failed to send webhook: ${error.message}`);

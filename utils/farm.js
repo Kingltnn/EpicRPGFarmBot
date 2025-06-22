@@ -311,6 +311,80 @@ async function inventory(client, channel, type = null) {
                 }, 4500);
             }
         }
+
+        // --- TỰ ĐỘNG MUA LOOTBOX ---
+        if (typeof lootboxcooldown !== 'undefined' && lootboxcooldown <= 0) {
+            if (!client.global.nextLootboxBuy || Date.now() > client.global.nextLootboxBuy) {
+                // Ưu tiên EDGY > EPIC > rare, chỉ mua nếu được bật trong config.settings.inventory.lootbox.buy
+                let lootboxToBuy = null;
+                const buyConfig = client.config.settings.inventory.lootbox.buy || {};
+                if (buyConfig["EDGY lootbox"]) {
+                    lootboxToBuy = "EDGY lootbox";
+                } else if (buyConfig["EPIC lootbox"]) {
+                    lootboxToBuy = "EPIC lootbox";
+                } else if (buyConfig["rare lootbox"]) {
+                    lootboxToBuy = "rare lootbox";
+                }
+                if (lootboxToBuy) {
+                    logger.info("Farm", "Lootbox", `🛒 Đang mua ${lootboxToBuy}...`);
+                    channel.send({ content: `rpg buy ${lootboxToBuy}` }).then(async () => {
+                        // Chờ response để kiểm tra kết quả
+                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        
+                        // Lấy response message
+                        const buyMessages = await channel.messages.fetch({ limit: 1 });
+                        const buyMessage = buyMessages.first();
+                        
+                        if (buyMessage && buyMessage.author.id === "555955826880413696") {
+                            const response = buyMessage.content;
+                            
+                            if (response.includes("successfully") || response.includes("bought") || response.includes("purchased")) {
+                                // Mua thành công
+                                logger.info("Farm", "Lootbox", `✅ Đã mua thành công ${lootboxToBuy}!`);
+                                
+                                // Gửi webhook notification
+                                if (client.config.settings.webhooks.inventory.url) {
+                                    try {
+                                        const webhook = new (require('discord.js')).WebhookClient({ url: client.config.settings.webhooks.inventory.url });
+                                        await webhook.send({
+                                            embeds: [{
+                                                title: "🎉 Lootbox Auto-Buy Success!",
+                                                description: `Bot đã mua thành công **${lootboxToBuy}**`,
+                                                color: 0x00ff00,
+                                                timestamp: new Date(),
+                                                footer: {
+                                                    text: "EpicRPG Farm Bot"
+                                                }
+                                            }]
+                                        });
+                                        logger.info("Farm", "Lootbox", `📢 Đã gửi webhook notification`);
+                                    } catch (webhookError) {
+                                        logger.error("Farm", "Lootbox", `❌ Lỗi gửi webhook: ${webhookError.message}`);
+                                    }
+                                }
+                            } else if (response.includes("not available") || response.includes("sold out")) {
+                                logger.warn("Farm", "Lootbox", `❌ ${lootboxToBuy} không có sẵn trong shop`);
+                            } else if (response.includes("not enough")) {
+                                logger.warn("Farm", "Lootbox", `❌ Không đủ coins để mua ${lootboxToBuy}`);
+                            } else {
+                                logger.warn("Farm", "Lootbox", `❓ Response không rõ: ${response}`);
+                            }
+                        } else {
+                            logger.warn("Farm", "Lootbox", `❌ Không nhận được response từ buy command`);
+                        }
+                        
+                        client.global.nextLootboxBuy = Date.now() + 60000; // Đặt tạm 1 phút để tránh spam
+                        
+                        // Gửi lại webhook inventory nếu có InfoChecker
+                        if (client.infoChecker && typeof client.infoChecker.checkInventory === 'function') {
+                            await client.infoChecker.checkInventory(channel);
+                        }
+                    }).catch(error => {
+                        logger.error("Farm", "Lootbox", `❌ Lỗi khi mua ${lootboxToBuy}: ${error.message}`);
+                    });
+                }
+            }
+        }
     });
 }
 
@@ -365,7 +439,8 @@ async function checkcooldowns(client, channel) {
             netcooldown,
             laddercooldown,
             progressworkingdisabled,
-            progressworkingmultivalue;
+            progressworkingmultivalue,
+            lootboxcooldown;
 
         for (const category in client.config.commands) {
             const subCommands = client.config.commands[category];
@@ -607,7 +682,7 @@ async function checkcooldowns(client, channel) {
                                     );
                                 }
                             }
-                            if (item === "duel" && 
+                            if (item === "duel" &&
                                 client.config.settings.duel.enabled &&
                                 client.duelManager) {
                                 if (cooldown && cooldown !== "ready") {
@@ -625,6 +700,23 @@ async function checkcooldowns(client, channel) {
                                 "Cooldowns",
                                 "Duel is ready!"
                             );
+                                }
+                            }
+                            if (item === "lootbox") {
+                                // Nếu dòng chỉ có chữ lootbox và bắt đầu bằng ✅, coi như cooldown đã hết
+                                if (trimmedLine.includes("lootbox") && trimmedLine.trim().startsWith("✅")) {
+                                    lootboxcooldown = 0;
+                                    logger.info("Farm", "Cooldowns", "Lootbox Cooldown: 0ms (READY)");
+                                } else {
+                                    const cooldown = extractCooldown(trimmedLine);
+                                    if (cooldown) {
+                                        lootboxcooldown = timetoms(cooldown);
+                                        logger.info(
+                                            "Farm",
+                                            "Cooldowns",
+                                            `Lootbox Cooldown: ${lootboxcooldown}ms`
+                                        );
+                                    }
                                 }
                             }
                         }
@@ -759,8 +851,20 @@ async function checkcooldowns(client, channel) {
         ) {
             if (axecooldown > 0) {
                 working(client, channel, "axe", axecooldown + 3500);
+                if (client.config.commands.progress.working.pickaxe) {
+                    working(client, channel, "pickaxe", axecooldown + 3500);
+                }
+                if (client.config.commands.progress.working.drill) {
+                    working(client, channel, "drill", axecooldown + 3500);
+                }
             } else {
                 working(client, channel, "axe", 7500);
+                if (client.config.commands.progress.working.pickaxe) {
+                    working(client, channel, "pickaxe", 7500);
+                }
+                if (client.config.commands.progress.working.drill) {
+                    working(client, channel, "drill", 7500);
+                }
             }
         }
         if (
@@ -792,6 +896,7 @@ async function checkcooldowns(client, channel) {
  */
 
 async function hunt(client, channel, extratime = 0) {
+    const huntBuffer = 2000; // buffer 2s tránh gửi quá sớm
     setTimeout(async () => {
         if (
             client.global.paused ||
@@ -811,7 +916,7 @@ async function hunt(client, channel, extratime = 0) {
             if (client.config.settings.autophrases) {
                 setTimeout(async () => {
                     await elaina2(client, channel);
-                }, 1000);
+                }, 10000);
             }
 
             await channel.send({ content: "rpg hunt" }).then(async () => {
@@ -837,21 +942,26 @@ async function hunt(client, channel, extratime = 0) {
                 } while (message && message.author.id !== "555955826880413696");
             });
         } else {
-            await channel.send({ content: "rpg hunt" }).then(() => {
+            await channel.send({ content: "rpg hunt" }).then(async () => {
                 client.global.totalhunt++;
                 logger.info(
                     "Farm",
                     "Hunt",
                     `Total Hunt: ${client.global.totalhunt}`
                 );
+                if (client.config.settings.inventory.sell.enable) {
+                    await client.delay(2000);
+                    await inventory(client, channel, "sell");
+                    await client.delay(5000);
+                }
                 if (client.config.settings.autophrases) {
                     setTimeout(async () => {
                         await elaina2(client, channel);
-                    }, 1000);
+                    }, 10000);
                 }
             });
         }
-    }, 1000 + extratime);
+    }, 2000 + huntBuffer + extratime);
 
     setInterval(async () => {
         if (
@@ -906,6 +1016,11 @@ async function hunt(client, channel, extratime = 0) {
                     await inventory(client, channel, "sell");
                     await client.delay(5000);
                 }
+                if (client.config.settings.autophrases) {
+                    setTimeout(async () => {
+                        await elaina2(client, channel);
+                    }, 10000);
+                }
             });
         } else {
             await channel.send({ content: "rpg hunt" }).then(async () => {
@@ -920,9 +1035,14 @@ async function hunt(client, channel, extratime = 0) {
                     await inventory(client, channel, "sell");
                     await client.delay(5000);
                 }
+                if (client.config.settings.autophrases) {
+                    setTimeout(async () => {
+                        await elaina2(client, channel);
+                    }, 10000);
+                }
             });
         }
-    }, 63000 + 1000 + extratime);
+    }, 63000 + 1000 + huntBuffer + extratime);
 }
 
 async function adventure(client, channel, extratime = 0) {
@@ -1015,7 +1135,7 @@ async function training(client, channel, extratime = 0) {
                 `Total training: ${client.global.totaltraining}`
             );
         });
-    }, 902000 + 1000 + extratime);
+    }, 917000 + extratime);
 }
 
 async function farm(client, channel, extratime = 0) {
@@ -1033,14 +1153,14 @@ async function farm(client, channel, extratime = 0) {
             return;
 
         // Kiểm tra và chọn loại seed
-        if (client.global.inventory.farm.seed >= 1) {
-            farmseedtype = "basic";
-        } else if (client.global.inventory.farm.potatoseed >= 1) {
-            farmseedtype = "potato";
+        if (client.global.inventory.farm.breadseed >= 1) {
+            farmseedtype = "bread";
         } else if (client.global.inventory.farm.carrotseed >= 1) {
             farmseedtype = "carrot";
-        } else if (client.global.inventory.farm.breadseed >= 1) {
-            farmseedtype = "bread";
+        } else if (client.global.inventory.farm.potatoseed >= 1) {
+            farmseedtype = "potato";
+        } else if (client.global.inventory.farm.seed >= 1) {
+            farmseedtype = "basic";
         }
 
         // Chỉ gửi lệnh farm nếu có seed
@@ -1066,14 +1186,14 @@ async function farm(client, channel, extratime = 0) {
             return;
 
         // Kiểm tra và chọn loại seed
-        if (client.global.inventory.farm.seed >= 1) {
-            farmseedtype = "basic";
-        } else if (client.global.inventory.farm.potatoseed >= 1) {
-            farmseedtype = "potato";
+        if (client.global.inventory.farm.breadseed >= 1) {
+            farmseedtype = "bread";
         } else if (client.global.inventory.farm.carrotseed >= 1) {
             farmseedtype = "carrot";
-        } else if (client.global.inventory.farm.breadseed >= 1) {
-            farmseedtype = "bread";
+        } else if (client.global.inventory.farm.potatoseed >= 1) {
+            farmseedtype = "potato";
+        } else if (client.global.inventory.farm.seed >= 1) {
+            farmseedtype = "basic";
         }
 
         // Chỉ gửi lệnh farm nếu có seed
@@ -1212,31 +1332,42 @@ async function use(client, channel, item, count = "", where = "") {
     client.global.use = false;
 }
 
-async function sell(client, channel, item, count = "1", where = "") {
-    if (client.global.paused && where !== "inventory") return;
-    await channel.send({ content: `rpg sell ${item} ${count}` });
-    logger.info("Farm", "Sell", item);
-    // if (where === "inventory") {
-    //     await client.delay(2500);
-    // }
+function extractCooldown(text) {
+    const cooldownRegex = /\(\*\*([^*]+)\*\*\)$/;
+    const cooldownMatch = text.match(cooldownRegex);
+    if (cooldownMatch && cooldownMatch.length > 1) {
+        const value = cooldownMatch[1].trim();
+        if (value.toLowerCase() === 'ready') return null;
+        return value;
+    }
+    return null;
 }
 
-/**
- * OTHER FUNCTIONS
- *
- */
+function timetoms(durationString) {
+    const regex = /(\d+)\s*d\s*|(\d+)\s*h\s*|(\d+)\s*m\s*|(\d+)\s*s\s*|(\d+)\s*$/g;
+    const matches = durationString.match(regex);
+    if (!matches) return null;
+    let milliseconds = 0;
+    matches.forEach((match) => {
+        const value = parseInt(match.match(/\d+/)[0]);
+        if (match.includes("d")) milliseconds += value * 24 * 60 * 60 * 1000;
+        else if (match.includes("h")) milliseconds += value * 60 * 60 * 1000;
+        else if (match.includes("m")) milliseconds += value * 60 * 1000;
+        else if (match.includes("s")) milliseconds += value * 1000;
+        else milliseconds += value;
+    });
+    return milliseconds;
+}
 
 async function elaina2(client, channel) {
     if (client.global.paused || client.global.captchadetected) return;
     client.fs.readFile("./phrases/phrases.json", "utf8", async (err, data) => {
         if (err) {
             console.error(err);
-            return diagnosticreport(err);
+            return;
         }
-
         const phrasesObject = JSON.parse(data);
         const phrases = phrasesObject.phrases;
-
         if (!phrases || !phrases.length) {
             logger.alert(
                 "Farm",
@@ -1247,40 +1378,7 @@ async function elaina2(client, channel) {
         }
         let result = Math.floor(Math.random() * phrases.length);
         let ilu = phrases[result];
-
-        // await channel.sendTyping();
-
         await channel.send({ content: ilu });
-        logger.info("Farm", "Phrases", `Successfuly Sended`);
+        logger.info("Farm", "Phrases", `Successfully Sent`);
     });
-}
-
-function timetoms(durationString) {
-    const regex =
-        /(\d+)\s*d\s*|(\d+)\s*h\s*|(\d+)\s*m\s*|(\d+)\s*s\s*|(\d+)\s*$/g;
-    const matches = durationString.match(regex);
-
-    if (!matches) return null;
-
-    let milliseconds = 0;
-
-    matches.forEach((match) => {
-        const value = parseInt(match.match(/\d+/)[0]);
-        if (match.includes("d")) milliseconds += value * 24 * 60 * 60 * 1000;
-        else if (match.includes("h")) milliseconds += value * 60 * 60 * 1000;
-        else if (match.includes("m")) milliseconds += value * 60 * 1000;
-        else if (match.includes("s")) milliseconds += value * 1000;
-        else milliseconds += value;
-    });
-
-    return milliseconds;
-}
-
-function extractCooldown(text) {
-    const cooldownRegex = /\(\*\*([^*]+)\*\*\)/;
-    const cooldownMatch = text.match(cooldownRegex);
-    if (cooldownMatch && cooldownMatch.length > 1) {
-        return cooldownMatch[1];
-    }
-    return null;
 }
