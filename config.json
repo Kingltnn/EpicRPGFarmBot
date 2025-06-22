@@ -1,0 +1,134 @@
+{
+    "prefix": "",
+    "token": "",
+    "channelid": "",
+    "userid": "",
+    "commands": {
+        "rewards": {
+            "daily": true,
+            "weekly": true,
+            "vote": {
+                "enable": false
+            }
+        },
+        "experience": {
+            "hunt": true,
+            "adventure": true,
+            "training": true
+        },
+        "progress": {
+            "farm": {
+                "enable": true,
+                "types": {
+                    "seed": true,
+                    "potato seed": true,
+                    "carrot seed": true,
+                    "bread seed": true
+                }
+            },
+            "working": {
+                "chop": false,
+                "fish": false,
+                "pickup": false,
+                "pickaxe": true,
+                "drill": false,
+                "mine": false,
+                "axe": false,
+                "net": false,
+                "ladder": false
+            }
+        }
+    },
+    "settings": {
+        "discordrpc": false,
+        "autophrases": true,
+        "event": {
+            "autojoin": true,
+            "autospecialtrade": true,
+            "autoarena": true
+        },
+        "shop": {
+            "enabled": true,
+            "items": {
+                "EDGY lootbox": {
+                    "enabled": true
+                },
+                "EPIC lootbox": {
+                    "enabled": false
+                },
+                "rare lootbox": {
+                    "enabled": false
+                }
+            },
+            "check_interval": 300000,
+            "retry_delay": 60000
+        },
+        "captcha_protection": {
+            "enabled": true,
+            "webhook_url": "",
+            "notification": {
+                "desktop": false,
+                "discord": true,
+                "sound": false
+            },
+            "auto_resume": true,
+            "auto_reduce_activity": false
+        },
+        "inventory": {
+            "check": true,
+            "lifepotion": {
+                "autouse": true,
+                "hplimit": 100
+            },
+            "lootbox": {
+                "autouse": true,
+                "types": {
+                    "common lootbox": true,
+                    "uncommon lootbox": true,
+                    "rare lootbox": false,
+                    "EPIC lootbox": false,
+                    "EDGY lootbox": false,
+                    "OMEGA lootbox": false
+                },
+                "buy": {
+                    "rare lootbox": false,
+                    "EPIC lootbox": false,
+                    "EDGY lootbox": true
+                }
+            },
+            "sell": {
+                "enable": false,
+                "types": {
+                    "normie fish": true,
+                    "golden fish": true,
+                    "EPIC fish": false,
+                    "SUPER fish": false,
+                    "wooden log": false,
+                    "EPIC log": false,
+                    "SUPER log": false,
+                    "MEGA log": false,
+                    "HYPER log": false,
+                    "ULTRA log": false,
+                    "ULTIMATE log": false,
+                    "apple": false,
+                    "banana": false,
+                    "bread": false,
+                    "carrot": false,
+                    "flask": false,
+                    "wolf skin": false,
+                    "zombie eye": false
+                }
+            }
+        },
+        "webhooks": {
+            "profile": {
+                "url": "",
+                "checkInterval": 3600000
+            },
+            "inventory": {
+                "url": "",
+                "checkInterval": 2700000
+            }
+        }
+    }
+} 
