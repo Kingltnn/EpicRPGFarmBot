@@ -1,11 +1,11 @@
-dWdnY2Y6Ly9iY3JhLmZjYmd2c2wucGJ6L2dlbnB4LzVwc2tIZ1B4Y3hQVkVlWGxxVVhGb1kgcm90MTM= </br>
-6 28 15 26 15<br> {/\_\_/}</br>( • . •)</br>/ > 🤍
+KingLTN</br>
+<br> {/\_\_/}</br>( • . •)</br>/ > 🤍
 
 <h1 align="center">EpicRPG Farm Bot V0.0.5.5(BETA)</h1>
 <p align="center">
 
-[![Total Views](https://hits.sh/github.com/Mid0aria/epicrpgfarmbot.svg?view=today-total&label=Repo%20Today/Total%20Views&color=770ca1&labelColor=007ec6)](https://github.com/Mid0aria/epicrpgfarmbot)
-[![Last Commit](https://img.shields.io/github/last-commit/mid0aria/epicrpgfarmbot)](https://github.com/Mid0aria/epicrpgfarmbot)
+[![Total Views](https://hits.sh/github.com/Kingltnn/EpicRPGFarmBot.svg?view=today-total&label=Repo%20Today/Total%20Views&color=770ca1&labelColor=007ec6)](https://github.com/Kingltnn/EpicRPGFarmBot)
+[![Last Commit](https://img.shields.io/github/last-commit/Kingltnn/EpicRPGFarmBot)](https://github.com/Kingltnn/EpicRPGFarmBot)
 
 ## Tutorials
 
@@ -13,9 +13,6 @@ dWdnY2Y6Ly9iY3JhLmZjYmd2c2wucGJ6L2dlbnB4LzVwc2tIZ1B4Y3hQVkVlWGxxVVhGb1kgcm90MTM=
 
 -   [🎈・Installation](#Installation)
     -   [Windows / Linux](#windows--linux) - Official
-    -   [Android / iOS (Termux)](#android--ios-termux) - Official
-
-To get auth key, join the Discord server [here](https://discord.gg/WzYXVbXt6C), go to [`#🤖・bot-commands`](https://discord.com/channels/1202294695091507230/1203705738770256032), and send `s!key`. The official bot will directly message you with the key.
 
 </p>
 
@@ -25,7 +22,6 @@ To get auth key, join the Discord server [here](https://discord.gg/WzYXVbXt6C), 
 [❗・Important](#important)<br>
 [👑・Features](#features)<br>
 [⚙・Config.json example](#configjson-example)<br>
-[💎・Get Token](#get-token)<br>
 [📚・Discord RPC](#discord-rpc)<br>
 [⚠️・Captcha Alert](#captcha-alert)<br>
 [🔗・Required Links](#required-links)<br>
@@ -33,10 +29,8 @@ To get auth key, join the Discord server [here](https://discord.gg/WzYXVbXt6C), 
 
 ## ⭐・Star History
 
-<h2 align="center">Goal: <a href="https://github.com/Mid0aria/epicrpgfarmbot/stargazers"><img src="https://img.shields.io/github/stars/Mid0aria/epicrpgfarmbot" /></a> / 512</h2>
+<h2 align="center">Goal: <a href="https://github.com/Kingltnn/EpicRPGFarmBot/stargazers"><img src="https://img.shields.io/github/stars/Kingltnn/EpicRPGFarmBot" /></a> / 99</h2>
 ⭐⭐⭐ You can also give this repository a star so that others know we're trusted!<br>
-
-[![Star History Chart](https://api.star-history.com/svg?repos=Mid0aria/epicrpgfarmbot&type=Date)](https://star-history.com/#Mid0aria/epicrpgfarmbot&Date)
 
 ## ❗・Important (Anyone using the bot is deemed to have read and accepted these)
 
@@ -83,10 +77,14 @@ To get auth key, join the Discord server [here](https://discord.gg/WzYXVbXt6C), 
     -   Auto Use Life Potion (Heal)
     -   Auto Use Selected LootBoxes
     -   Auto Sell Selected Items
-
+-   Shop:
+    -   Auto buy lootbox
+-    Webhook
+    - Send webhook when captcha detected
+    - send webhook profile
+    - send inventory webhook   
 -   Discord RPC
 -   Auto Phrases Send
--   Captcha(Ban) Protection v0.0.1 (beta)
 -   Auto Restart:
     -   Automatically restarts after captcha verification
     -   Automatically restarts when using command "3"
@@ -99,94 +97,130 @@ To get auth key, join the Discord server [here](https://discord.gg/WzYXVbXt6C), 
 
 ```
 {
-    "midoservices_authkey": "mido_services.xxx", / Enter Your midoservices authkey
 
-    "prefix": "e!", / Enter Prefix
-    "token": "", / Enter Account Token
-    "channelid": "", / Enter channel id where the bot will work
-    "userid": "", / Enter your discord account user id
+    {  
+  "prefix": "",Enter Prefix
+    "token": "",    Enter Account Token
+    "channelid": "1377455233944522872", Enter channel id where the bot will work
+    "userid": "419369142873882627",Enter your discord account user id
     "commands": {
         "rewards": {
             "daily": true, / true or false
-            "weekly": true / true or false
+            "weekly": true, / true or false
             "vote": {
-                "enable": true,
+                "enable": false / true or false
             }
         },
         "experience": {
             "hunt": true, / true or false
-            "adventure": true, / true or false
-            "training": true / true or false
+            "adventure": true,     / true or false
+            "training": true     / true or false
         },
-        "progress": { / !!!! Enable only one of the progress commands, if more than one progress command is enabled, only the farm command is enabled by default
+        "progress": {/ !!!! Enable only one of the progress commands, if more than one progress command is enabled, only the farm command is enabled by default
             "farm": {
-                "enable": false, / true or false
+                "enable": true,   / true or false
                 "types": {
-                    "seed": true, / true or false
-                    "potato seed": true, / true or false
-                    "carrot seed": true, / true or false
-                    "bread seed": true / true or false
+                    "seed": true,    / true or false
+                    "potato seed": false,     / true or false
+                    "carrot seed": false,    / true or false
+                    "bread seed": false    / true or false
                 }
             },
-            "working": { / !!!! Enable only one of the run commands, if you enable more than one, by default only the chop command will be enabled.
-                "chop": false, / true or false
-                "fish": true, / true or false
-                "pickup": false, / true or false
-                "mine": false, / true or false
-                "axe": false, / true or false
-                "net": false, / true or false
-                "ladder": false / true or false
+            "working": {    / !!!! Enable only one of the run commands, if you enable more than one, by default only the chop command will be enabled.
+                "chop": false,    / true or false
+                "fish": false,    / true or false
+                "pickup":false,    / true or false
+                "mine": false,    / true or false
+                "axe": true,    / true or false
+                "net": false,    / true or false
+                "ladder": false    / true or false
             }
         }
     },
     "settings": {
-        "discordrpc": true, / true or false
-        "autophrases": true, / true or false
+        "discordrpc": false,    / true or false
+        "autophrases": true,    / true or false
         "event": {
-            "autojoin": true, / true or false
-            "autospecialtrade": true, / true or false
-            "autoarena": true / true or false
+            "autojoin": true,    / true or false
+            "autospecialtrade": true,    / true or false
+            "autoarena": true    / true or false
         },
-
+        "shop": {
+            "enabled": true, / true or false
+            "items": {
+                "EDGY lootbox": {
+                    "enabled": true     / true or false
+                },
+                "EPIC lootbox": {
+                    "enabled": false     / true or false
+                },
+                "rare lootbox": {
+                    "enabled": false    / true or false
+                }
+            },
+            "check_interval": 300000,
+            "retry_delay": 60000
+        },
+        "captcha_protection": {
+            "enabled": true,    / true or false
+            "webhook_url": "", Link url discord
+            "notification": {
+                "desktop": false,      / true or false
+                "discord": true,     / true or false
+                "sound": false     / true or false
+            },
+            "auto_resume": true,     / true or false
+            "auto_reduce_activity": false     / true or false
+        },
         "inventory": {
-            "check": true, / true or false
+            "check": true,     / true or false
             "lifepotion": {
-                "autouse": true, / true or false
-                "hplimit": 170 / will automatically use a life potion when your health drops below this value
+                "autouse": true,   / true or false
+                "hplimit": 100  /will automatically use a life potion when your health drops below this value
             },
             "lootbox": {
                 "autouse": true, / true or false
                 "types": {
                     "common lootbox": true, / true or false
-                    "uncommon lootbox": true, / true or false
-                    "rare lootbox": true, / true or false
-                    "EPIC lootbox": true, / true or false
-                    "EDGY lootbox": true, / true or false
-                    "OMEGA lootbox": true / true or false
+                    "uncommon lootbox": true,    / true or false
+                    "rare lootbox": true,    / true or false
+                    "EPIC lootbox": true,    / true or false
+                    "EDGY lootbox":  false,    / true or false
+                    "OMEGA lootbox": false    / true or false
                 }
             },
             "sell": {
-                "enable": false, / true or false
+                "enable": false,    / true or false
                 "types": {
-                    "normie fish": true, / true or false
-                    "golden fish": true, / true or false
-                    "EPIC fish": true, / true or false
-                    "SUPER fish": true, / true or false
-                    "wooden log": true, / true or false
-                    "EPIC log": true, / true or false
-                    "SUPER log": true, / true or false
-                    "MEGA log": true, / true or false
-                    "HYPER log": true, / true or false
-                    "ULTRA log": true, / true or false
-                    "ULTIMATE log": true, / true or false
-                    "apple": true, / true or false
-                    "banana": true, / true or false
-                    "bread": true, / true or false
-                    "carrot": true, / true or false
-                    "flask": true, / true or false
-                    "wolf skin": true, / true or false
-                    "zombie eye": true / true or false
+                    "normie fish": true,    / true or false
+                    "golden fish": true,    / true or false
+                    "EPIC fish": false,    / true or false    
+                    "SUPER fish": false,    / true or false
+                    "wooden log": false,    / true or false
+                    "EPIC log": false,    / true or false
+                    "SUPER log": false,    / true or false
+                    "MEGA log": false,    / true or false
+                    "HYPER log": false,    / true or false
+                    "ULTRA log": false,    / true or false
+                    "ULTIMATE log": false,    / true or false
+                    "apple": false,    / true or false
+                    "banana": false,    / true or false
+                    "bread": false,    / true or false
+                    "carrot": false,    / true or false
+                    "flask": false,    / true or false
+                    "wolf skin": false,    / true or false
+                    "zombie eye": false    / true or false
                 }
+            }
+        },
+        "webhooks": {
+            "profile": {
+                "url": "", Link url discord
+                "checkInterval": 3600000
+            },
+            "inventory": {
+                "url": "",    Link url discord
+                "checkInterval": 2700000
             }
         }
     }
@@ -231,20 +265,20 @@ m)
 
 ## 📚・Discord RPC
 
-![](https://raw.githubusercontent.com/Mid0aria/epicrpgfarmbot/main/images/rpc.jpg)
+![](https://raw.githubusercontent.com/Kingltnn/EpicRPGFarmBot/main/images/rpc.jpg)
 
 ## ⚠️・Captcha Alert
 
 > [!NOTE]
 > If you want the captcha alert to work properly, turn off do not disturb
 
-![](https://raw.githubusercontent.com/Mid0aria/epicrpgfarmbot/main/images/captchaalert.png)
+![](https://raw.githubusercontent.com/Kingltnn/EpicRPGFarmBot/main/images/captchaalert.png)
 
 ## 🔗・Required Links
 
 [NodeJS](https://nodejs.org/en/)<br>
 [Terminal](https://apps.microsoft.com/detail/9n0dx20hk701)<br>
-[Farm Bot ZIP File](https://github.com/Mid0aria/epicrpgfarmbot/archive/refs/heads/main.zip)
+[Farm Bot ZIP File](https://github.com/Kingltnn/EpicRPGFarmBot/archive/refs/heads/main.zip)
 
 ## 🎈・Installation
 
@@ -262,23 +296,5 @@ m)
 - Send "3" in the configured channel to resume the bot
 ```
 
-### 📱・Android / iOS (Termux)
 
-```bash
-# Install:
-apt update -y && apt upgrade -y && pkg install wget
-wget https://raw.githubusercontent.com/mid0aria/epicrpgfarmbot/main/termux-setup.sh
-sh termux-setup.sh
-
-# Configure:
-cd epicrpgfarmbot
-nano config.json
-
-# Run:
-sh start.sh
-
-# Control Bot:
-- Send "2" in the configured channel to pause the bot
-- Send "3" in the configured channel to resume the bot
-```
 "# EpicRPG" 

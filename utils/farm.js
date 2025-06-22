@@ -4,6 +4,7 @@ module.exports = async (client, message) => {
     if (client.global.paused || client.global.captchadetected) return;
     logger.info("Farm", "Paused", client.global.paused);
     let channel = client.channels.cache.get(client.config.channelid);
+    
     if (
         client.config.settings.inventory.check &&
         client.config.settings.inventory.lifepotion.autouse
@@ -887,6 +888,10 @@ async function checkcooldowns(client, channel) {
                 working(client, channel, "ladder", 7500);
             }
         }
+
+        if (client.shopManager && client.config.settings.shop.enabled) {
+            await client.shopManager.checkAndBuyWhenReady();
+        }
     });
 }
 
@@ -1165,10 +1170,10 @@ async function farm(client, channel, extratime = 0) {
 
         // Chỉ gửi lệnh farm nếu có seed
         if (farmseedtype) {
-            await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
-                client.global.totalworking++;
-                logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
-            });
+        await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
+            client.global.totalworking++;
+            logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
+        });
         } else {
             logger.warn("Farm", "Progress-Farm", "No seeds available in inventory");
         }
@@ -1198,9 +1203,9 @@ async function farm(client, channel, extratime = 0) {
 
         // Chỉ gửi lệnh farm nếu có seed
         if (farmseedtype) {
-            await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
-                logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
-            });
+        await channel.send({ content: `rpg farm ${farmseedtype}` }).then(() => {
+            logger.info("Farm", "Progress-Farm", `Type: ${farmseedtype}`);
+        });
         } else {
             logger.warn("Farm", "Progress-Farm", "No seeds available in inventory");
         }

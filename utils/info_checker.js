@@ -127,11 +127,19 @@ class InfoChecker {
             }
 
             const embed = response.embeds[0];
+            
+            // Kiểm tra embed.fields tồn tại
+            if (!embed.fields || !Array.isArray(embed.fields)) {
+                logger.warn('InfoChecker', 'Inventory', 'No fields found in inventory embed');
+                return;
+            }
+            
             const currentData = this.parseInventoryData(embed);
 
             // Compare with initial inventory data if available
             if (this.initialInventoryData) {
                 for (const field of embed.fields) {
+                    if (!field || !field.name || !field.value) continue;
                     const newValue = this.compareAndUpdateField(
                         field.value,
                         this.initialInventoryData[field.name],
@@ -163,7 +171,15 @@ class InfoChecker {
 
     parseInventoryData(embed) {
         const data = {};
+        // Kiểm tra embed.fields tồn tại trước khi truy cập
+        if (!embed.fields || !Array.isArray(embed.fields)) {
+            logger.warn('InfoChecker', 'Parse', 'No fields found in embed');
+            return data;
+        }
+        
         for (const field of embed.fields) {
+            if (!field || !field.name || !field.value) continue;
+            
             data[field.name] = {};
             const lines = field.value.split('\n');
             for (const line of lines) {
@@ -180,7 +196,7 @@ class InfoChecker {
     }
 
     compareAndUpdateField(fieldValue, initialData, currentData) {
-        if (!initialData || !currentData) return fieldValue;
+        if (!initialData || !currentData || !fieldValue) return fieldValue;
 
         const lines = fieldValue.split('\n');
         const updatedLines = lines.map(line => {
@@ -223,6 +239,20 @@ class InfoChecker {
                 }
             });
         });
+    }
+
+    /**
+     * Khởi tạo InfoChecker
+     */
+    init() {
+        logger.info('InfoChecker', 'Init', 'Info checker initialized');
+    }
+
+    /**
+     * Dọn dẹp khi bot dừng
+     */
+    cleanup() {
+        logger.info('InfoChecker', 'Cleanup', 'Info checker cleaned up');
     }
 }
 

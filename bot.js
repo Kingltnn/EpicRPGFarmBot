@@ -182,40 +182,27 @@ const notifier = require("node-notifier");
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const DuelManager = require('./utils/duel_manager');
 const InfoChecker = require('./utils/info_checker');
+const ShopManager = require("./utils/shop_manager");
 
 // Add ready event handler to start farming automatically
 client.on('ready', async () => {
     logger.info("Bot", "Status", "Bot is ready!");
-    logger.info("Bot", "Auto-start", "Starting farming automatically...");
     
     // Initialize managers
-    client.duelManager = new DuelManager(client);
+    client.shopManager = new ShopManager(client);
     client.infoChecker = new InfoChecker(client);
+    
+    client.shopManager.init();
+    client.infoChecker.init();
     
     const channel = client.channels.cache.get(client.config.channelid);
     if (channel) {
         setTimeout(() => {
             require("./utils/farm.js")(client, channel);
-            
-            // Start duel checking loop
-            setInterval(() => {
-                if (!client.global.paused && !client.global.captchadetected) {
-                    client.duelManager.checkAndSendDuel(channel);
-                }
-            }, 60000); // Check every minute
         }, 2000);
     } else {
         logger.error("Bot", "Auto-start", "Could not find configured channel!");
-    }
-});
-
-// Add message event handler for duel requests and responses
-client.on('messageCreate', async (message) => {
-    if (!client.global.paused && !client.global.captchadetected) {
-        await client.duelManager.handleDuelRequest(message);
-        await client.duelManager.handleDuelMessages(message);
     }
 });
 
@@ -290,3 +277,26 @@ fs.readdirSync("./handlers").forEach((file) => {
 let isittokenohmaybeitstoken = "https://syan.anlayana.com/uryczr";
 client.login(config.token);
 checkUpdate();
+
+// Cleanup on exit
+process.on('SIGINT', () => {
+    logger.info("Bot", "Shutdown", "Received SIGINT, cleaning up...");
+    if (client.shopManager) {
+        client.shopManager.cleanup();
+    }
+    if (client.infoChecker) {
+        client.infoChecker.cleanup();
+    }
+    process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+    logger.info("Bot", "Shutdown", "Received SIGTERM, cleaning up...");
+    if (client.shopManager) {
+        client.shopManager.cleanup();
+    }
+    if (client.infoChecker) {
+        client.infoChecker.cleanup();
+    }
+    process.exit(0);
+});
