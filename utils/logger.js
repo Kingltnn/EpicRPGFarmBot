@@ -3,53 +3,53 @@ let logger = [];
 
 logger.info = (type, module, result = "") => {
     console.log(
-        chalk.white(
+        chalk.whiteBright.bold(
             `[${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}]`
         ),
-        chalk.blue(chalk.bold(type)),
-        chalk.white(`>`),
-        chalk.magenta(module),
-        chalk.white(`>`),
-        chalk.green(result)
+        chalk.cyanBright.bold(type),
+        chalk.whiteBright.bold(`>`),
+        chalk.magentaBright.bold(module),
+        chalk.whiteBright.bold(`>`),
+        chalk.greenBright.bold(result)
     );
 };
 
 logger.warn = (type, module, result = "") => {
     console.log(
-        chalk.white(
+        chalk.whiteBright.bold(
             `[${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}]`
         ),
-        chalk.blue(chalk.bold(type)),
-        chalk.white(`>`),
-        chalk.magenta(module),
-        chalk.white(`>`),
-        chalk.yellow(result)
+        chalk.cyanBright.bold(type),
+        chalk.whiteBright.bold(`>`),
+        chalk.magentaBright.bold(module),
+        chalk.whiteBright.bold(`>`),
+        chalk.yellowBright.bold(result)
     );
 };
 
 logger.alert = (type, module, result = "") => {
     console.log(
-        chalk.white(
+        chalk.whiteBright.bold(
             `[${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}]`
         ),
-        chalk.blue(chalk.bold(type)),
-        chalk.white(`>`),
-        chalk.magenta(module),
-        chalk.white(`>`),
-        chalk.red(result)
+        chalk.cyanBright.bold(type),
+        chalk.whiteBright.bold(`>`),
+        chalk.magentaBright.bold(module),
+        chalk.whiteBright.bold(`>`),
+        chalk.redBright.bold(result)
     );
 };
 
 logger.error = (type, module, result = "") => {
     console.log(
-        chalk.white(
+        chalk.whiteBright.bold(
             `[${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}]`
         ),
-        chalk.blue(chalk.bold(type)),
-        chalk.white(`>`),
-        chalk.magenta(module),
-        chalk.white(`>`),
-        chalk.red(result)
+        chalk.cyanBright.bold(type),
+        chalk.whiteBright.bold(`>`),
+        chalk.magentaBright.bold(module),
+        chalk.whiteBright.bold(`>`),
+        chalk.redBright.bold(result)
     );
 };
 
